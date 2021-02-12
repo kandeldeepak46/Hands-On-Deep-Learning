@@ -4,7 +4,12 @@ from tensorflow import keras
 import tensorflow as tf
 import seaborn as sns
 from pylab import rcParams
-import matplotlib.pyplot as plt
+
+try:
+    import matplotlib.pyplot as plt
+except:
+    pass
+
 from matplotlib import rc
 from loguru import logger
 
@@ -54,7 +59,9 @@ class MyDeepNeuralNetwork(object):
         metrics=["accuracy"],
     )
 
-    def train_model(self, train_dataset, val_dataset):
+    def train_model(
+        self, train_dataset, val_dataset, plot_accuracy=False, plot_loss=False
+    ):
         history = self.model.fit(
             train_dataset.repeat(),
             epochs=10,
@@ -62,6 +69,26 @@ class MyDeepNeuralNetwork(object):
             validation_data=val_dataset.repeat(),
             validation_steps=2,
         )
+
+        if plot_accuracy is True:
+            plt.plot(history.history["accuracy"])
+            plt.plot(history.history["val_accuracy"])
+            plt.title("model accuracy")
+            plt.ylabel("accuracy")
+            plt.xlabel("epoch")
+            plt.ylim((0, 1))
+            plt.legend(["train", "test"], loc="upper left")
+            plt.show()
+
+        if plot_loss is True:
+            plt.plot(history.history["loss"])
+            plt.plot(history.history["val_loss"])
+            plt.title("model loss")
+            plt.ylabel("loss")
+            plt.xlabel("epoch")
+            plt.ylim((1.5, 2))
+            plt.legend(["train", "test"], loc="upper left")
+            plt.show()
 
 
 class MyFashionMNISTData:
@@ -93,7 +120,7 @@ def main():
     val_datasets = my_data.create_dataset(x_val, y_val)
 
     my_dnn = MyDeepNeuralNetwork()
-    my_dnn.train_model(train_datasets, val_datasets)
+    my_dnn.train_model(train_datasets, val_datasets, plot_accuracy=True)
 
 
 if __name__ == "__main__":
